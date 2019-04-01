@@ -75,8 +75,22 @@ server.get("/api/users", restricted, (req, res) => {
       res.status(200).json(users);
     })
     .catch(error => {
-      res.status(500).json({ message: "Server error" });
+      res.status(500).json({ message: "Server error", error });
     });
+});
+
+server.get("/api/logout", (req, res) => {
+  if (req.session) {
+    req.session.destroy(error => {
+      if (error) {
+        res.json({ error });
+      } else {
+        res.status(200).json({ message: "Successfull logout" });
+      }
+    });
+  } else {
+    res.end();
+  }
 });
 
 const port = process.env.PORT || 5000;
