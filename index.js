@@ -2,6 +2,8 @@ const express = require("express");
 const knex = require("knex");
 const bcryptjs = require("bcryptjs");
 const session = require("express-session");
+const KnexSessionStore = require("connect-session-knex")(session);
+
 const knexConfig = require("./knexfile").development;
 
 const db = knex(knexConfig);
@@ -17,7 +19,14 @@ const sessionConfig = {
   },
   httpOnly: true, //can the user access the cookie from js
   resave: false,
-  saveOninitialized: false // GDPR laws against setting cookies automatically
+  saveOninitialized: false, // GDPR laws against setting cookies automatically
+  store: new KnexSessionStore({
+    knex: db,
+    tablename: "sessions",
+    sidFieldname: "sid",
+    createTable: true,
+    clearInterval: 1000 * 60 * 60 //ms
+  })
 };
 
 server.use(express.json());
